@@ -7,6 +7,7 @@ var nodefn = require('when/node/function');
 var when = require('when');
 var readFile = nodefn.lift(fs.readFile);
 var unlink = nodefn.lift(fs.unlink);
+var gm = require('gm')
 var AWS = require('aws-sdk');
 var options = {};
 
@@ -22,7 +23,7 @@ S3Store.prototype.save = function(image) {
     var targetFilename = self.getTargetName(image, targetDir);
     var awsPath = options.assetHost ? options.assetHost : 'https://' + options.bucket + '.s3.amazonaws.com/';
 
-    return readFile(image.path)
+    return gm(image.path).autoOrient()
     .then(function(buffer) {
         var s3 = new AWS.S3({
           accessKeyId: options.accessKeyId,

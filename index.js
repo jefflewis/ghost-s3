@@ -23,8 +23,16 @@ S3Store.prototype.save = function(image) {
     var targetFilename = self.getTargetName(image, targetDir);
     var awsPath = options.assetHost ? options.assetHost : 'https://' + options.bucket + '.s3.amazonaws.com/';
 
-    return gm(image.path).autoOrient()
-    .then(function(buffer) {
+    return gm(image.path)
+    .autoOrient()
+    .stream(function (err, stdout, stderror) {
+      if (err) console.log("Error in creating an image: ", stderror);
+      var buf = new Buffer(0);
+      stdout.on("data", function(d) {
+        buf = Buffer.concat([buf, d]);
+      });
+      stdout.on("end", function() {
+
         var s3 = new AWS.S3({
           accessKeyId: options.accessKeyId,
           secretAccessKey: options.secretAccessKey,
@@ -40,21 +48,8 @@ S3Store.prototype.save = function(image) {
             ContentType: image.type,
             CacheControl: 'max-age=' + (30 * 24 * 60 * 60) // 30 days
         });
+      })
     })
-    .then(function(result) {
-        self.logInfo('ghost-s3', 'Temp uploaded file path: ' + image.path);
-    })
-    .then(function() {
-        return when.resolve(awsPath + targetFilename);
-    })
-    .catch(function(err) {
-        // fs.unlink(image.path, function (err) {
-        //     if (err) throw err;
-        //     errors.logInfo('ghost-s3', 'Successfully deleted temp file uploaded');
-        // });
-        self.logError(err);
-        throw err;
-    });
 };
 
 // middleware for serving the files

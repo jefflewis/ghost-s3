@@ -24,7 +24,7 @@ S3Store.prototype.save = function(image) {
   var targetFilename = self.getTargetName(image, targetDir);
   var awsPath = options.assetHost ? options.assetHost : 'https://' + options.bucket + '.s3.amazonaws.com/';
 
-  imageMagick(buffer, "image.jpg")
+  imageMagick(image.path)
   .autoOrient()
   .stream(function (err, stdout, stderror) {
     if (err) console.log("Error in creating an image from a Buffer: ", stderror);

@@ -51,7 +51,7 @@ S3Store.prototype.save = function(image) {
       });
     })
   })
-}
+};
 
 // middleware for serving the files
 S3Store.prototype.serve = function() {
